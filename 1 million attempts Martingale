@@ -1,0 +1,67 @@
+def simulate_martingale_extended(start_balance, base_bet, profit_target, bust_limit, max_attempts):
+    """
+    Simulate the Martingale strategy with a profit target and bust limit over multiple attempts.
+
+    Parameters:
+    start_balance (int): Starting balance of the player.
+    base_bet (int): Initial bet amount.
+    profit_target (int): Target profit at which the player stops.
+    bust_limit (int): Bust limit, simulation stops if balance reaches this limit.
+    max_attempts (int): Maximum number of attempts to simulate.
+
+    Returns:
+    dict: Statistics including the number of hits and busts.
+    """
+    hits = 0
+    busts = 0
+    total_profit_loss = 0
+
+    for _ in range(max_attempts):
+        balance = start_balance
+        current_bet = base_bet
+
+        while balance > bust_limit and balance < start_balance + profit_target:
+            # Bet: Win (probability 18/37) or Lose (probability 19/37) for European Roulette
+            if np.random.random() < 18/37:
+                # Win
+                balance += current_bet
+                current_bet = base_bet
+            else:
+                # Lose
+                balance -= current_bet
+                current_bet = min(current_bet * 2, balance)  # Double the bet or bet all remaining balance
+
+        total_profit_loss += balance - start_balance
+
+        if balance >= start_balance + profit_target:
+            hits += 1
+        else:
+            busts += 1
+
+    average_profit_loss = total_profit_loss / max_attempts
+
+    return {
+        'hits': hits,
+        'busts': busts,
+        'probability_of_hitting': hits / max_attempts,
+        'probability_of_busting': busts / max_attempts,
+        'average_profit_loss': average_profit_loss
+    }
+
+# Import numpy
+import numpy as np
+
+# Simulation parameters
+start_balance = 10000  # Starting balance
+base_bet = 100  # Initial bet
+profit_target = 1000  # Target profit
+bust_limit = 0  # Bust limit
+max_attempts = 1000000  # Number of attempts
+
+# Run the simulation
+simulation_results = simulate_martingale_extended(start_balance, base_bet, profit_target, bust_limit, max_attempts)
+
+# Print the results
+print("Average Profit/Loss per Attempt:", simulation_results['average_profit_loss'])
+print("Percentage of Attempts that Hit the Profit Target:", simulation_results['probability_of_hitting'] * 100, "%")
+print("Percentage of Attempts that Went Bust:", simulation_results['probability_of_busting'] * 100, "%")
