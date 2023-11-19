@@ -1,0 +1,57 @@
+import matplotlib.pyplot as plt
+import numpy as np
+
+def plot_multiple_martingale_simulations(num_people, start_balance, base_bet, profit_target, bust_limit, max_attempts):
+    """
+    Plot the balance over time for multiple people using the Martingale strategy.
+
+    Parameters:
+    num_people (int): Number of people to simulate.
+    start_balance (int): Starting balance for each person.
+    base_bet (int): Initial bet for each person.
+    profit_target (int): Target profit for each person.
+    bust_limit (int): Bust limit for each person.
+    max_attempts (int): Maximum number of attempts for each person.
+    """
+    plt.figure(figsize=(12, 8))
+
+    for person in range(1, num_people + 1):
+        balance = start_balance
+        current_bet = base_bet
+        balance_over_time = [balance]
+
+        for _ in range(max_attempts):
+            if balance <= bust_limit or balance >= start_balance + profit_target:
+                break
+
+            # Bet: Win (probability 18/37) or Lose (probability 19/37) for European Roulette
+            if np.random.random() < 18/37:
+                # Win
+                balance += current_bet
+                current_bet = base_bet
+            else:
+                # Lose
+                balance -= current_bet
+                current_bet = min(current_bet * 2, balance)  # Double the bet or bet all remaining balance
+
+            balance_over_time.append(balance)
+
+        plt.plot(balance_over_time, label=f'Person {person}')
+
+    plt.xlabel('Attempts')
+    plt.ylabel('Balance')
+    plt.title('Martingale Strategy Simulation for Multiple People')
+    plt.legend()
+    plt.grid(True)
+    plt.show()
+
+# Parameters for the simulation
+num_people = 5
+start_balance = 10000
+base_bet = 100
+profit_target = 1000
+bust_limit = 0
+max_attempts = 1000  # Reduced number of attempts for clearer visualization
+
+# Plot the results
+plot_multiple_martingale_simulations(num_people, start_balance, base_bet, profit_target, bust_limit, max_attempts)
